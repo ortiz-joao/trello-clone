@@ -7,5 +7,8 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxt/ui', '@vueuse/nuxt'],
   colorMode: {
     preference: 'light'
+  },
+  app:{
+    baseURL: '/trello-clone/'
   }
 })
