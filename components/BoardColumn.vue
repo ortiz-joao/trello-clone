@@ -1,14 +1,14 @@
 <template>
-	<UContainer 
-	class="column"
+	<UCard 
+	class="w-1/3 mr-8 h-fit"
 	draggable="true"
 	@dragstart.self="pickupColumn($event, columnIndex)"
 	@dragenter.prevent 
 	@dragover.prevent 
 	@drop.stop="dropItem($event, {toColumnIndex: columnIndex})">
-			
-			<div class="column-header mb-4">
-				<div>
+			<template #header>
+				<div class="flex flex-row justify-between mb-4">
+				<div class="text-xl font-semibold">
 					<UInput v-if="editNameState" type="text" v-model="column.name" />
 					<h2 v-else >{{ column.name }}</h2>
 				</div>
@@ -21,42 +21,55 @@
 					/>
 				</div>
 			</div>
-			<ul>
-				<li 
-					v-for="(task, taskIndex) in column.tasks"
-					:key="task.id">
-				<UCard 
-					class="mb-4" 
-					@click="goToTask(task.id)"
-					draggable="true"
-					@dragstart="pickupTask($event, {
-						fromTaskIndex: taskIndex,
-						fromColumnIndex: columnIndex
-					})"
-					@drop.stop="dropItem($event, {
-						toColumnIndex: columnIndex,
-						toTaskIndex: taskIndex
-					})"
-					>
-					<strong>{{ task.name }}</strong>
-					<p>{{ task.description }}</p>
-				</UCard>
-				</li>
+			</template>
+			
+			<ul class="grid grid-cols-1 gap-y-4">
+				<TransitionGroup appear name="grow">
+					<li class=""
+						v-for="(task, taskIndex) in column.tasks"
+						:key="task.id">
+					<UCard 
+						class="w-full"
+						@click="goToTask(task.id)"
+						draggable="true"
+						@dragstart="pickupTask($event, {
+							fromTaskIndex: taskIndex,
+							fromColumnIndex: columnIndex
+						})"
+						@drop.stop="dropItem($event, {
+							toColumnIndex: columnIndex,
+							toTaskIndex: taskIndex
+						})"
+						>
+						<strong>{{ task.name }}</strong>
+						<p>{{ task.description }}</p>
+					</UCard>
+					</li>
+				</TransitionGroup>
 			</ul>
-			<UInput 
-				type="text" 
-				placeholder="Create a new task" 
-				icon="i-heroicons-plus-circle-solid"
-				v-model="newTaskName"
-				@keyup.enter="addTask"/>
-		</UContainer>
+			<template #footer>
+				<UInput 
+					type="text" 
+					placeholder="Create a new task" 
+					icon="i-heroicons-plus-circle-solid"
+					v-model="newTaskName"
+					@keyup.enter="addTask"/>
+			</template>
+			
+		</UCard 
+		>
 </template>
 
 <script setup>
 import { useBoardStore } from '../stores/boardStore'
 
+const emit = defineEmits(['addTask',
+'deleteTask',
+'moveTask',
+'moveColumn',
+'deleteColumn'])
+
 const router = useRouter()
-const boardStore = useBoardStore()
 
 const props = defineProps({
 	column: {
@@ -72,7 +85,7 @@ const props = defineProps({
 const editNameState = ref('')
 
 function deleteColumn(columnIndex) {
-	boardStore.deleteColumn(columnIndex)
+	emit('deleteColumn',columnIndex)
 }
 
 function goToTask(taskId) {
@@ -82,7 +95,7 @@ function goToTask(taskId) {
 const newTaskName = ref('')
 
 function addTask() {
-	boardStore.addTask({taskName: newTaskName.value, columnIndex: props.columnIndex})
+	emit('addTask', {taskName: newTaskName.value, columnIndex: props.columnIndex})
 	newTaskName.value = ''
 }
 
@@ -102,14 +115,14 @@ function dropItem(event, { toColumnIndex, toTaskIndex }) {
 	if (type === 'task') {
 		const fromTaskIndex = event.dataTransfer.getData('from-task-index')
 		
-		boardStore.moveTask({
+		emit('moveTask',{
 			fromTaskIndex,
 			fromColumnIndex,
 			toColumnIndex,
 			toTaskIndex
 		})
 	} else if (type === 'column') {
-		boardStore.moveColumn({
+		emit('moveColumn',{
 			fromColumnIndex,
 			toColumnIndex
 		})
@@ -124,3 +137,22 @@ function pickupColumn(event, fromColumnIndex) {
 	event.dataTransfer.setData('type', 'column')
 }
 </script>
+<style scoped>
+.grow-enter-active,
+.grow-leave-active {
+	transition: all 0.2s ease-in;
+}
+
+.grow-enter-from,
+.grow-leave-to {
+	height: 0px;
+	overflow: hidden;
+	opacity: 0;
+}
+
+.grow-enter-to,
+.grow-leave-from {
+	height: 64px;
+	opacity:1;
+}
+</style>

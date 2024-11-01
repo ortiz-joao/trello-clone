@@ -17,11 +17,14 @@ function deleteTask() {
 
 <template>
 	<div class="task-wrapper">
-		<div class="task-view">
+		<UCard class="">
+			<template v-if="task" #header>
+				<UFormGroup label="Name" class="mb-4">
+					<UInput type="text" v-model="task.name"/>
+				</UFormGroup>
+			</template>
 			<section v-if="task" class="w-full">
-			<UFormGroup label="Name" class="mb-4">
-				<UInput type="text" v-model="task.name"/>
-			</UFormGroup>
+			
 			<UFormGroup label="Description" class="mb-4">
 				<UTextarea v-model="task.description" />
 			</UFormGroup>
@@ -34,6 +37,6 @@ function deleteTask() {
 				<p>Task not found.</p>
 			</section>
 
-		</div>
+		</UCard>
 	</div>
 </template>

@@ -21,6 +21,7 @@
     "vue": "latest"
   },
   "devDependencies": {
+    "@nuxtjs/pwa": "^3.3.5",
     "@vueuse/core": "^10.11.1",
     "@vueuse/nuxt": "^10.11.1"
   }

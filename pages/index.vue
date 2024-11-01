@@ -1,5 +1,5 @@
 <template>
-	<main class="board">
+	<main class="flex flex-row overflow-auto">
 		<h1>{{ boardStore.board.name }}</h1>
 		<BoardColumn 
 			v-for="(col, colIndex) in boardStore.board.columns" 
